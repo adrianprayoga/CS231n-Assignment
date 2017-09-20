@@ -80,6 +80,8 @@ class SqueezeNet(object):
         - sess: TensorFlow session
         - input: optional input to the model. If None, will use placeholder for input.
         """
+        init_op = tf.global_variables_initializer()
+        sess.run(init_op)
         self.image = tf.placeholder('float',shape=[None,None,None,3],name='input_image')
         self.labels = tf.placeholder('int32', shape=[None], name='labels')
         self.layers = []
@@ -105,9 +107,9 @@ class SqueezeNet(object):
         self.classifier = tf.reshape(x,[-1, NUM_CLASSES])
 
         if save_path is not None:
-            #saver = tf.train.Saver()
-            with tf.Session() as sess:
-                saver = tf.train.import_meta_graph(save_path)
-                saver.restore(sess, 'cs231n/datasets/squeezenet.ckpt')
-            #saver.restore(sess, save_path)
+            saver = tf.train.Saver()
+            saver.restore(sess, "cs231n/datasets/squeezenet.ckpt")
+            #saver = tf.train.import_meta_graph('cs231n/datasets/squeezenet.ckpt.meta')
+            #saver.restore(sess, 'cs231n/datasets/squeezenet.ckpt')
+
         self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=tf.one_hot(self.labels, NUM_CLASSES), logits=self.classifier))
